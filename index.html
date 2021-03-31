@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Twue</title>
+    <meta charset="utf-8">
+    <script src="./twue.js"></script>
+    <script src="./main.js"></script>
+    <style>
+        textarea {
+            width: 50ch;
+            height: 20ch;
+        }
+    </style>
+</head>
+<body>
+    <h1>Twue Interpreter</h1>
+    <h2>Code</h2>
+    <textarea id="code"></textarea>
+    <div>
+        <button id="submitCode">Submit</button>
+    </div>
+    <h2>Workspace</h2>
+    <div>
+        <button id="stepCode" disabled>Step</button>
+        <button id="runCode" disabled>Run</button>
+    </div>
+    <!-- <button id="submitCode">Submit</button> -->
+    <!-- <button id="submitCode">Submit</button> -->
+    <textarea id="workspace"></textarea>
+    <h2>Output</h2>
+    <textarea id="output"></textarea>
+</body>
+</html>
