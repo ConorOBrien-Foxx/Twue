@@ -144,6 +144,8 @@ class TwueInterpreter {
         
         this.running = true;
         this.outputElement = null;
+        this.inputElement = null;
+        this.inputPointer = 0;
     }
     
     run() {
@@ -168,9 +170,14 @@ class TwueInterpreter {
     
     getByte() {
         if(IS_BROWSER) {
-            let p = prompt("Enter a character");
-            p = p || "\x00";
-            return p[0];
+            if(this.inputElement) {
+                return this.inputElement.value[++this.inputPointer] || "\x00";
+            }
+            else {
+                let p = prompt("Enter a character");
+                p = p || "\x00";
+                return p[0];
+            }
         }
         let buffer = Buffer.alloc(1);
         try {
@@ -189,7 +196,20 @@ class TwueInterpreter {
     
     getLine() {
         if(IS_BROWSER) {
-            return prompt("Enter a line:") || "";
+            if(this.inputElement) {
+                let i = this.inputPointer;
+                let s = this.inputElement.value;
+                let line = "";
+                while(i < s.length && s[i] !== "\n") {
+                    line += s[i];
+                    i++;
+                }
+                this.inputPointer = i + 1;
+                return line;
+            }
+            else {
+                return prompt("Enter a line:") || "";
+            }
         }
         else {
             return reader.question("") || "";

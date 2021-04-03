@@ -78,9 +78,13 @@ a|b
 
 ### Cat program
 
-Reads bytes until EOF (0x00) is hit.
+Reads and outputs bytes simultaneously.
 
 ```
-\x00@::=
-@::>.@
+@'\0::=
+'_::~_
+@::>@'.
+::=
+@
+
 ```

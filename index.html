@@ -10,14 +10,43 @@
             width: 50ch;
             height: 20ch;
         }
+        #codeinput {
+            display: flex;
+            justify-content: space-around;
+        }
+        #codeinput div {
+            width: 45%;
+        }
+        #codeinput textarea {
+            width: 100%;
+        }
+        #input {
+            display: block;
+        }
+        h1, h2 {
+            margin: 0;
+        }
+        h2 label {
+            font-size: 0.7em;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
     <h1>Twue Interpreter</h1>
-    <h2>Code</h2>
-    <textarea id="code"></textarea>
+    <div id="codeinput">
+        <div>
+            <h2>Code</h2>
+            <textarea id="code"></textarea>
+        </div>
+        <div>
+            <h2>Input <label for="useInput">Use text input? </label><input id="useInput" type="checkbox" checked></h2>
+            <textarea id="input"></textarea>
+        </div>
+    </div>
     <div>
         <button id="submitCode">Submit</button>
+        <button id="submitRunCode">Submit &amp; Run</button>
     </div>
     <h2>Workspace</h2>
     <div>
