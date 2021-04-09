@@ -3,6 +3,8 @@ window.addEventListener("load", function () {
     let submitRunCode = document.getElementById("submitRunCode");
     let stepCode = document.getElementById("stepCode");
     let runCode = document.getElementById("runCode");
+    let runStepCode = document.getElementById("runStepCode");
+    let runStepCodeDelay = document.getElementById("runStepCodeDelay");
     let code = document.getElementById("code");
     let output = document.getElementById("output");
     let input = document.getElementById("input");
@@ -81,6 +83,7 @@ window.addEventListener("load", function () {
         if(!inst.running) {
             stepCode.disabled = true;
             runCode.disabled = true;
+            runStepCode.disabled = true;
         }
     };
     
@@ -111,6 +114,7 @@ window.addEventListener("load", function () {
         inst.debugMode = true;
         stepCode.disabled = false;
         runCode.disabled = false;
+        runStepCode.disabled = false;
         workspace.value = inst.workspace;
         output.value = "";
     });
@@ -119,6 +123,14 @@ window.addEventListener("load", function () {
         submitCode.click();
         run();
     });
+    
+    
+    let stepWithDelay = () => {
+        step();
+        setTimeout(stepWithDelay, runStepCodeDelay.value);
+    };
+    
+    runStepCode.addEventListener("click", stepWithDelay);
     
     stepCode.addEventListener("click", step);
     runCode.addEventListener("click", run);

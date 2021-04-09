@@ -6,6 +6,9 @@
     <script src="./twue.js"></script>
     <script src="./main.js"></script>
     <style>
+        html {
+            font-family: "Gadugi", sans-serif;
+        }
         textarea {
             width: 50ch;
             height: 20ch;
@@ -29,6 +32,9 @@
         h2 .note {
             font-size: 0.7em;
             font-weight: normal;
+        }
+        input[type=number] {
+            width: 9ch;
         }
     </style>
 </head>
@@ -54,6 +60,8 @@
     <div>
         <button id="stepCode" disabled>Step</button>
         <button id="runCode" disabled>Run</button>
+        <button id="runStepCode" disabled>Stepped Run</button>
+        <label for="runStepCodeDelay">Step Delay: </label><input type="number" id="runStepCodeDelay" value=100 min=0 step=50>ms
     </div>
     <!-- <button id="submitCode">Submit</button> -->
     <!-- <button id="submitCode">Submit</button> -->

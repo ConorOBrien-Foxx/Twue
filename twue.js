@@ -34,7 +34,8 @@ class TwueRule {
         return str.replace(/\\e/g, "")
             .replace(/\\n/g, "\n")
             .replace(/\\t/g, "\t")
-            .replace(/\\\\/g, "\\")
+            // .replace(/\\\\/g, "\\")
+            // .replace(/\\_/g, "\\x5f")
             .replace(/\\([0-7]{1,2})/g, (all, n) => String.fromCharCode(parseInt(n, 8)))
             .replace(/\\x(\d\d)/g, (all, n) => String.fromCharCode(parseInt(n, 16)))
             .replace(/\\u(\d{4})/g, (all, n) => String.fromCharCode(parseInt(n, 16)));
@@ -44,17 +45,28 @@ class TwueRule {
         if(this.regex) return this.regex;
         this.groups = {};
         let groupIndex = 1;
-        let regStr = escapeRegex(this.search)
-            .replace(/_(\d*)/g, (match, n) => {
-                // let n = match.length;
+        let regStr = escapeRegex(this.search);
+        console.log(this.search, regStr);
+        regStr = regStr
+            .replace(/(\\*)/g, (esc) => esc.slice(0, esc.length / 2))
+            .replace(/(\\*)_(\d*)/g, (match, esc, n) => {
+                // esc = esc.slice(0, esc.length / 2);
+                console.log("ESC MAP", match, esc);
+                if(esc.length % 2) {
+                    // we don't need to escape the _
+                    return esc.slice(1) + "_" + n;
+                }
                 n = n || "1";
+                let str;
                 if(this.groups[n]) {
-                    return "\\" + this.groups[n];
+                    str =  "\\" + this.groups[n];
                 }
                 else {
                     this.groups[n] = groupIndex++;
-                    return "([\\s\\S])";
+                    str = "([\\s\\S])";
                 }
+                
+                return esc + str;
             })
             .replace(/\\([\[\]])/g, "$1");
         this.regex = new RegExp(regStr);
@@ -224,7 +236,7 @@ class TwueInterpreter {
     stepRule() {
         for(let rule of this.rules) {
             let match = rule.matchIndex(this.workspace);
-            this.debug(rule.search, match);
+            this.debug(rule.search, rule.getRegex(), match);
             if(match) {
                 this.debug("Rule matched:", rule);
                 let { replace, groups, ruleKind } = rule;
