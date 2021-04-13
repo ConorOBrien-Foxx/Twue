@@ -183,7 +183,7 @@ class TwueInterpreter {
     getByte() {
         if(IS_BROWSER) {
             if(this.inputElement) {
-                return this.inputElement.value[++this.inputPointer] || "\x00";
+                return this.inputElement.value[this.inputPointer++] || "\x00";
             }
             else {
                 let p = prompt("Enter a character");
