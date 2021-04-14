@@ -13,6 +13,8 @@ window.addEventListener("load", function () {
     let bytes = document.getElementById("bytes");
     let exportURL = document.getElementById("exportURL");
     let exportPPCG = document.getElementById("exportPPCG");
+    let stopCode = document.getElementById("stopCode");
+    let optionButtonHolder = document.getElementById("optionButtonHolder");
     output.value = workspace.value = "";
     
     let encodeInfoToURL = (code, input = null) => {
@@ -81,15 +83,15 @@ window.addEventListener("load", function () {
         inst.stepRule();
         workspace.value = inst.workspace;
         if(!inst.running) {
-            stepCode.disabled = true;
-            runCode.disabled = true;
-            runStepCode.disabled = true;
+            return false;
         }
+        return true;
     };
     
     let run = function () {
         inst.run();
         workspace.value = inst.workspace;
+        setEnableState(false);
     };
     
     let updateCodeBytes = () => {
@@ -105,16 +107,21 @@ window.addEventListener("load", function () {
         input.style.display = useInput.checked ? "block" : "none";
     });
     
+    const setEnableState = (enabled) => {
+        for(let bt of optionButtonHolder.querySelectorAll("button")) {
+            bt.disabled = !enabled;
+        }
+    };
+    setEnableState(false);
+    
     submitCode.addEventListener("click", function () {
         inst = new TwueInterpreter(code.value);
         inst.outputElement = output;
         if(useInput.checked) {
             inst.inputElement = input;
         }
-        inst.debugMode = true;
-        stepCode.disabled = false;
-        runCode.disabled = false;
-        runStepCode.disabled = false;
+        // inst.debugMode = true;
+        setEnableState(true);
         workspace.value = inst.workspace;
         output.value = "";
     });
@@ -124,13 +131,32 @@ window.addEventListener("load", function () {
         run();
     });
     
+    stopCode.addEventListener("click", function () {
+        isStepping = false;
+    });
     
+    
+    let isStepping = false;
     let stepWithDelay = () => {
-        step();
-        setTimeout(stepWithDelay, runStepCodeDelay.value);
+        if(!isStepping) {
+            console.log("Interrupted/terminated");
+            isStepping = false;
+            return;
+        }
+        if(step()) {
+            setTimeout(stepWithDelay, runStepCodeDelay.value);
+        }
+        else {
+            isStepping = false;
+            setEnableState(false);
+        }
     };
     
-    runStepCode.addEventListener("click", stepWithDelay);
+    runStepCode.addEventListener("click", () => {
+        if(isStepping) return;
+        isStepping = true;
+        stepWithDelay();
+    });
     
     stepCode.addEventListener("click", step);
     runCode.addEventListener("click", run);

@@ -17,9 +17,10 @@ let isRuleIndicator = (s) =>
 
 const DIGIT_TEST = /[0-9]/;
 // from https://stackoverflow.com/a/3561711/4119004
-const ESCAPE_REGEX_TEST = /[-\/\\^$*+?.()|[\]{}]/g;
+const ESCAPE_REGEX_TEST = /[-\/\\^$*+?.()|[\]{}]/;
+const ESCAPE_REGEX_GLOBAL  = /[-\/\\^$*+?.()|[\]{}]/g;
 let escapeRegex = (string) =>
-    string.replace(ESCAPE_REGEX_TEST, "\\$&");
+    string.replace(ESCAPE_REGEX_GLOBAL, "\\$&");
 
 class TwueRule {
     constructor(search, replace, ruleKind) {
@@ -48,9 +49,11 @@ class TwueRule {
         this.groups = {};
         let groupIndex = 1;
         // let regStr = escapeRegex(this.search);
-        console.log(this.search);
+        // console.log(this.search);
         let regStr = "";
         for(let i = 0; i < this.search.length; i++) {
+            // console.log(i, this.search[i], regStr, ESCAPE_REGEX_TEST.test(this.search[i]));
+            // console.log(this.search[i], "&&&&", ESCAPE_REGEX_TEST.test(this.search[i]));
             if(this.search[i] == "\\") {
                 i++;
                 regStr += "\\";
@@ -68,19 +71,18 @@ class TwueRule {
                 i--;
                 n = n || "1";
                 if(this.groups[n]) {
-                    console.log("owo");
                     regStr += "\\" + this.groups[n];
                 }
                 else {
                     this.groups[n] = groupIndex++;
-                    regStr = "([\\s\\S])";
+                    regStr += "([\\s\\S])";
                 }
             }
             else {
                 regStr += this.search[i];
             }
         }
-        console.log("REGSTR = ", regStr);
+        // console.log("REGSTR = ", regStr);
         /*
         regStr = regStr
         
