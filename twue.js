@@ -6,11 +6,12 @@ const IS_BROWSER = typeof window !== "undefined";
 
 if(IS_BROWSER) {
     // dummy variable
-    var require = () => {};
+    var require = (name) => {};
 }
 
 const fs = require("fs");
 const reader = require("readline-sync");
+const Preprocess = require("./preprocess.js") || window.BrowserPreprocess;
 
 let isRuleIndicator = (s) =>
     s.slice(0, 2) == "::" && RULE_KINDS.includes(s.slice(2));
@@ -186,6 +187,7 @@ let cutIntoString = (source, start, size, replace) =>
 
 class TwueInterpreter {
     constructor(code) {
+        code = Preprocess(code);
         let parser = new TwueParser(code);
         parser.parse();
         let { workspace, rules } = parser;
