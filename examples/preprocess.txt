@@ -1,0 +1,19 @@
+
+[PREPROCESS]::=
+    [T2 -> Repeat Inside x's Twice]::=
+T2()::=
+T2(x::=xxT2(
+
+    [NOOP]::=
+NOOP*()::=
+NOOP*(_::=_NOOP*(
+NOOP(::=NOOP*(
+
+    [CH -> Chop 1 X]::=
+CH(x::=NOOP(
+    [CONSTANTS]::=
+*255*::=CH(T2(T2(T2(T2(T2(xxxxxxxx))))))
+
+
+#define X Y
+#define 

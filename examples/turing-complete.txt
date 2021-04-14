@@ -1,0 +1,87 @@
+#define [4]     xxxx
+#define [8]     [4][4]
+#define [16]    [8][8]
+#define [32]    [16][16]
+#define [64]    [32][32]
+#define [255]   [64][64][64][32][16][8]xxxxxxx
+#define CFG.BOUNDED_CELLS
+
+[PROG INPUT]::=
+@::>*
+
+[OUTCHAR]::=
+%_::~_
+
+[OUTPUT AS UNARY]::=
+P.::=%\n.
+P_::=_P%_
+
+[ADD CELL IF NECESSARY]::=
+$;::=$~.;
+
+[MOVE CELL LEFT]::=
+~$[::=$~
+_$[::=$[_
+
+[MOVE CELL RIGHT]::=
+]$~::=$~
+$]~::=~]$
+]$_::=_]$
+
+[EXEC OTHER COMMANDS]::=
+#ifdef CFG.BOUNDED_CELLS
+    [EDGE CASE WRAPPING]::=
+$v~.::=$~[255].
+$^~[255].::=$~.
+#else
+    [EDGE CASE BLOCKING]::=
+$v~.::=$~.
+#endif
+
+$o~::=$~P
+$^~::=$~x
+$v~x::=$~
+$?~.::={0$~.
+----------$?~x::={1$~x
+$?~x::=$~x
+
+[COMMAND MOVEMENT]::=
+_}$::=$_
+_}_2::=_2_}
+<{_#::=<_#
+#{_>::=#_>
+_{_2::={_2_
+
+[COMMAND TRANSFER]::=
+!^!::=^}
+!v!::=v}
+!o!::=o}
+![!::=[}
+!]!::=]}
+!?!::=?}
+!_!::=
+
+[COMMAND REDIRECTS]::=
+#>|::=<#|
+|<#::=|#>
+
+[CONDITIONAL TRAMPOLINE]::=
+#0>_::=_#>
+_<0#::=<#_
+----------#1>::=#>
+----------<#1::=<#
+
+[TRAMPOLINE]::=
+#>&_::=&_#>
+_&<#::=<#_&
+
+[MAIN PROCESS LOOP]::=
+  [TERMINATE]::=
+#>.::=
+.#<::=
+  [MOVE RIGHT/LEFT]::=
+#>_::=!_!_#>
+_<#::=<#_!_!
+
+::=
+@$;
