@@ -15,6 +15,7 @@ const reader = require("readline-sync");
 let isRuleIndicator = (s) =>
     s.slice(0, 2) == "::" && RULE_KINDS.includes(s.slice(2));
 
+const DIGIT_TEST = /[0-9]/;
 // from https://stackoverflow.com/a/3561711/4119004
 const ESCAPE_REGEX_TEST = /[-\/\\^$*+?.()|[\]{}]/g;
 let escapeRegex = (string) =>
@@ -41,14 +42,49 @@ class TwueRule {
             .replace(/\\u(\d{4})/g, (all, n) => String.fromCharCode(parseInt(n, 16)));
     }
     
+    // compiles search to regex
     getRegex() {
         if(this.regex) return this.regex;
         this.groups = {};
         let groupIndex = 1;
-        let regStr = escapeRegex(this.search);
-        console.log(this.search, regStr);
+        // let regStr = escapeRegex(this.search);
+        console.log(this.search);
+        let regStr = "";
+        for(let i = 0; i < this.search.length; i++) {
+            if(this.search[i] == "\\") {
+                i++;
+                regStr += "\\";
+                // }
+                regStr += this.search[i];
+            }
+            else if(ESCAPE_REGEX_TEST.test(this.search[i])) {
+                regStr += "\\" + this.search[i];
+            }
+            else if(this.search[i] == "_") {
+                let n = "";
+                while(DIGIT_TEST.test(this.search[++i])) {
+                    n += this.search[i];
+                }
+                i--;
+                n = n || "1";
+                if(this.groups[n]) {
+                    console.log("owo");
+                    regStr += "\\" + this.groups[n];
+                }
+                else {
+                    this.groups[n] = groupIndex++;
+                    regStr = "([\\s\\S])";
+                }
+            }
+            else {
+                regStr += this.search[i];
+            }
+        }
+        console.log("REGSTR = ", regStr);
+        /*
         regStr = regStr
-            .replace(/(\\*)/g, (esc) => esc.slice(0, esc.length / 2))
+        
+            // .replace(/(\\*)/g, (esc) => esc.slice(0, esc.length / 2))
             .replace(/(\\*)_(\d*)/g, (match, esc, n) => {
                 // esc = esc.slice(0, esc.length / 2);
                 console.log("ESC MAP", match, esc);
@@ -63,12 +99,12 @@ class TwueRule {
                 }
                 else {
                     this.groups[n] = groupIndex++;
-                    str = "([\\s\\S])";
+                    str = "";
                 }
                 
                 return esc + str;
             })
-            .replace(/\\([\[\]])/g, "$1");
+            .replace(/\\([\[\]])/g, "$1");*/
         this.regex = new RegExp(regStr);
         return this.regex;
     }
@@ -241,9 +277,10 @@ class TwueInterpreter {
                 this.debug("Rule matched:", rule);
                 let { replace, groups, ruleKind } = rule;
                 this.debug("Replace:", replace);
-                replace = replace.replace(/_(\d*)/g, (all, n) =>
-                    match[groups[n || "1"]]
-                );
+                replace = replace.replace(/_(\d*)/g, (all, n) => {
+                    let g = groups[n || "1"];
+                    return g in match ? match[g] : all;
+                });
                 if(ruleKind === RULE_SET) {
                     //pass
                 }
