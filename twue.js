@@ -10,18 +10,16 @@ if(IS_BROWSER) {
 }
 
 const fs = require("fs");
-const reader = require("readline-sync");
+// const reader = require("readline-sync");
 const Preprocess = require("./preprocess.js") || window.BrowserPreprocess;
+// console.log("owo?", Preprocess);
 
 let isRuleIndicator = (s) =>
     s.slice(0, 2) == "::" && RULE_KINDS.includes(s.slice(2));
 
-const DIGIT_TEST = /[0-9]/;
+const DIGIT_TEST = /[0-9.]/;
 // from https://stackoverflow.com/a/3561711/4119004
 const ESCAPE_REGEX_TEST = /[-\/\\^$*+?.()|[\]{}]/;
-const ESCAPE_REGEX_GLOBAL  = /[-\/\\^$*+?.()|[\]{}]/g;
-let escapeRegex = (string) =>
-    string.replace(ESCAPE_REGEX_GLOBAL, "\\$&");
 
 class TwueRule {
     constructor(search, replace, ruleKind) {
@@ -49,7 +47,6 @@ class TwueRule {
         if(this.regex) return this.regex;
         this.groups = {};
         let groupIndex = 1;
-        // let regStr = escapeRegex(this.search);
         // console.log(this.search);
         let regStr = "";
         for(let i = 0; i < this.search.length; i++) {
@@ -67,6 +64,10 @@ class TwueRule {
             else if(this.search[i] == "_") {
                 let n = "";
                 while(DIGIT_TEST.test(this.search[++i])) {
+                    if(this.search[i] == ".") {
+                        i++;
+                        break;
+                    }
                     n += this.search[i];
                 }
                 i--;
@@ -83,7 +84,7 @@ class TwueRule {
                 regStr += this.search[i];
             }
         }
-        // console.log("REGSTR = ", regStr);
+        console.log("REGSTR = ", regStr);
         /*
         regStr = regStr
         
@@ -185,6 +186,17 @@ class TwueParser {
 let cutIntoString = (source, start, size, replace) =>
     source.slice(0, start) + replace + source.slice(start + size);
 
+const readLineStdin = (eof = 10) => {
+    let outBuf = Buffer.alloc(0);
+    let buffer = Buffer.alloc(1);
+    //EOF or EOL
+    do {
+        fs.readSync(0, buffer, 0, 1);
+        outBuf = Buffer.concat([outBuf, buffer], outBuf.length + 1);
+    } while(buffer[0] != 0 && buffer[0] != 10);
+    return outBuf.toString("utf8");
+};
+
 class TwueInterpreter {
     constructor(code) {
         code = Preprocess(code);
@@ -264,7 +276,7 @@ class TwueInterpreter {
             }
         }
         else {
-            return reader.question("") || "";
+            return readLineStdin();
         }
     }
     
@@ -281,7 +293,7 @@ class TwueInterpreter {
                 this.debug("Rule matched:", rule);
                 let { replace, groups, ruleKind } = rule;
                 this.debug("Replace:", replace);
-                replace = replace.replace(/_(\d*)/g, (all, n) => {
+                replace = replace.replace(/_(\d*);?/g, (all, n) => {
                     let g = groups[n || "1"];
                     return g in match ? match[g] : all;
                 });
