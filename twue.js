@@ -17,7 +17,7 @@ const Preprocess = require("./preprocess.js") || window.BrowserPreprocess;
 let isRuleIndicator = (s) =>
     s.slice(0, 2) == "::" && RULE_KINDS.includes(s.slice(2));
 
-const DIGIT_TEST = /[0-9.]/;
+const DIGIT_TEST = /[0-9]|\./;
 // from https://stackoverflow.com/a/3561711/4119004
 const ESCAPE_REGEX_TEST = /[-\/\\^$*+?.()|[\]{}]/;
 
@@ -84,7 +84,8 @@ class TwueRule {
                 regStr += this.search[i];
             }
         }
-        console.log("REGSTR = ", regStr);
+        // console.log("REGSTR = /" + regStr + "/");
+        // console.log(this.groups);
         /*
         regStr = regStr
         
@@ -293,7 +294,7 @@ class TwueInterpreter {
                 this.debug("Rule matched:", rule);
                 let { replace, groups, ruleKind } = rule;
                 this.debug("Replace:", replace);
-                replace = replace.replace(/_(\d*);?/g, (all, n) => {
+                replace = replace.replace(/_(\d*)\.?/g, (all, n) => {
                     let g = groups[n || "1"];
                     return g in match ? match[g] : all;
                 });
